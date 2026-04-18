@@ -179,3 +179,174 @@ body::after {
 }
 
 @keyframes blink { 50% { opacity: 0; } }
+
+/* ── RENDER MODES ── */
+
+.ascii-render {
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.ascii-render.Matrix {
+  color: var(--neon-primary);
+  text-shadow: 0 0 5px var(--neon-primary), 0 0 10px rgba(0, 255, 65, 0.5);
+}
+
+.ascii-render.BW {
+  color: #FFFFFF;
+  text-shadow: 0 0 2px #FFFFFF;
+  filter: brightness(1.2) contrast(1.5);
+}
+
+.ascii-render.Retro {
+  color: var(--warn-amber);
+  text-shadow: 0 0 8px var(--warn-amber);
+}
+
+.ascii-render.Color {
+  color: var(--hack-cyan);
+  text-shadow: 0 0 10px var(--hack-cyan);
+}
+
+.ascii-viewport {
+  position: relative;
+  background: var(--void);
+  border: var(--border-dim);
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  min-height: 0; /* Prevents encroaching on the Control Dock */
+}
+
+.ascii-render {
+  font-family: var(--font-terminal);
+  line-height: 1;
+  white-space: pre;
+  margin: 0;
+  user-select: none;
+  /* Mirror the display for predictable self-view */
+  transform: scaleX(-1);
+}
+
+.scanline {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 100px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 255, 65, 0.05), transparent);
+  animation: scan-line 8s linear infinite;
+  pointer-events: none;
+}
+
+.error-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  border: 1px dashed var(--danger-red);
+  color: var(--danger-red);
+}
+
+/* ── HUD OVERLAY ── */
+
+.hud-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hud-corner {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--neon-primary);
+  opacity: 0.6;
+}
+
+.hud-corner.top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+.hud-corner.top-right { top: 20px; right: 20px; border-left: none; border-bottom: none; }
+.hud-corner.bottom-left { bottom: 20px; left: 20px; border-right: none; border-top: none; }
+.hud-corner.bottom-right { bottom: 20px; right: 20px; border-left: none; border-top: none; }
+
+.hud-header, .hud-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--neon-primary);
+  text-shadow: var(--glow-sm);
+}
+
+.hud-tag {
+  background: var(--neon-primary);
+  color: var(--void);
+  padding: 2px 8px;
+  font-weight: 900;
+}
+
+.hud-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px;
+  background: rgba(0, 255, 65, 0.1);
+  border: 1px solid var(--neon-primary);
+}
+
+.blink-target {
+  color: var(--danger-red);
+  animation: blink 0.5s step-end infinite;
+}
+
+.hud-metrics {
+  display: flex;
+  gap: var(--space-4);
+  opacity: 0.7;
+}
+
+.hud-branding {
+  font-weight: 900;
+  opacity: 0.5;
+}
+
+/* ── CRT POLISH ── */
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.6) 120%);
+  z-index: 4;
+}
+
+.ascii-viewport::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+              linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+  z-index: 6;
+  opacity: 0.3;
+}
+
+.ascii-render {
+  animation: flicker 0.01s infinite;
+}
+
+@keyframes flicker {
+  0% { opacity: 0.98; }
+  50% { opacity: 1; }
+  100% { opacity: 0.99; }
+}
+

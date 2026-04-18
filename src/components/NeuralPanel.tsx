@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
-export const NeuralPanel: React.FC = () => {
+interface NeuralPanelProps {
+  aiMode: boolean;
+  faceDetected: boolean;
+}
+
+export const NeuralPanel: React.FC<NeuralPanelProps> = ({ aiMode, faceDetected }) => {
   const [telemetry, setTelemetry] = useState<string[]>([]);
 
   useEffect(() => {
@@ -29,11 +34,15 @@ export const NeuralPanel: React.FC = () => {
         </div>
         <div className="status-item">
           <span className="label">AI MODE:</span>
-          <span className="value">PASSIVE</span>
+          <span className="value" style={{ color: aiMode ? 'var(--neon-primary)' : 'var(--text-ghost)' }}>
+            {aiMode ? 'ACTIVE' : 'PASSIVE'}
+          </span>
         </div>
         <div className="status-item">
-          <span className="label">EMOTION:</span>
-          <span className="value">CALCULATING...</span>
+          <span className="label">FACE DETECTED:</span>
+          <span className="value" style={{ color: faceDetected ? 'var(--neon-hot)' : 'var(--text-disabled)' }}>
+            {faceDetected ? 'YES' : 'NO'}
+          </span>
         </div>
       </div>
       <div className="telemetry-logs">
