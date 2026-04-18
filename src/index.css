@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;700;900&family=VT323&family=Rajdhani:wght@300;400;600;700&display=swap');
+
+:root {
+  /* ── CORE PALETTE ── */
+  --void:          #000000;
+  --abyss:         #030A03;
+  --deep:          #050F05;
+  --surface:       #091209;
+  --panel:         #0D1A0D;
+  --raised:        #112011;
+
+  /* ── GREENS ── */
+  --green-950:     #001100;
+  --green-900:     #002200;
+  --green-800:     #003300;
+  --green-700:     #004400;
+  --green-600:     #006600;
+  --green-500:     #00AA00;
+  --green-400:     #00CC00;
+  --green-300:     #00EE00;
+  --green-200:     #33FF33;
+  --green-100:     #80FF80;
+  --green-50:      #CCFFCC;
+
+  /* ── NEON ACCENT ── */
+  --neon-primary:  #00FF41;   /* Matrix iconic green */
+  --neon-hot:      #39FF14;   /* Neon chartreuse */
+  --neon-cold:     #00FFAB;   /* Cyan-green */
+  --neon-pulse:    #7FFF00;   /* Electric lime */
+  --neon-ghost:    #0FFF50;   /* Spring green neon */
+
+  /* ── SECONDARY ACCENTS ── */
+  --acid-yellow:   #CCFF00;
+  --hack-cyan:     #00FFFF;
+  --danger-red:    #FF003C;
+  --warn-amber:    #FF8C00;
+
+  /* ── TEXT ── */
+  --text-bright:   #E8FFE8;
+  --text-primary:  #AAFFAA;
+  --text-dim:      #558855;
+  --text-ghost:    #224422;
+  --text-disabled: #1A331A;
+
+  /* ── GLOW VALUES ── */
+  --glow-sm:   0 0 4px var(--neon-primary);
+  --glow-md:   0 0 8px var(--neon-primary), 0 0 16px var(--green-400);
+  --glow-lg:   0 0 12px var(--neon-primary), 0 0 30px var(--green-500), 0 0 60px var(--green-700);
+  --glow-xl:   0 0 20px var(--neon-primary), 0 0 50px var(--green-400), 0 0 100px var(--green-600);
+  --glow-text: 0 0 6px var(--neon-primary), 0 0 20px var(--green-400);
+  --glow-hot:  0 0 8px var(--neon-hot), 0 0 25px #39FF1466;
+
+  /* ── BORDERS ── */
+  --border-dim:    1px solid var(--green-800);
+  --border-normal: 1px solid var(--green-600);
+  --border-bright: 1px solid var(--neon-primary);
+  --border-glow:   1px solid var(--neon-primary);
+
+  /* ── TYPOGRAPHY ── */
+  --font-display:  'Orbitron', monospace;
+  --font-terminal: 'Share Tech Mono', monospace;
+  --font-glitch:   'VT323', monospace;
+  --font-ui:       'Rajdhani', sans-serif;
+
+  /* ── SPACING ── */
+  --space-1: 4px;  --space-2: 8px;   --space-3: 12px;
+  --space-4: 16px; --space-5: 24px;  --space-6: 32px;
+  --space-7: 48px; --space-8: 64px;  --space-9: 96px;
+
+  /* ── RADIUS ── */
+  --r-none: 0px; --r-sm: 2px; --r-md: 4px; --r-lg: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--void);
+  color: var(--text-primary);
+  font-family: var(--font-terminal);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── SCANLINE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 999; pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 2px,
+    rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 4px
+  );
+}
+
+/* ── CRT VIGNETTE ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 998; pointer-events: none;
+  background: radial-gradient(ellipse at center,
+    transparent 50%, rgba(0,0,0,0.7) 100%);
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── COMPONENT UTILITIES (from Design System) ── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 20px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+  outline: none;
+}
+
+.btn-primary {
+  background: var(--neon-primary);
+  color: var(--void);
+  clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+}
+
+.btn-primary:hover {
+  background: var(--green-100);
+  box-shadow: var(--glow-lg);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--neon-primary);
+  border: 1px solid var(--neon-primary);
+  box-shadow: var(--glow-sm), inset 0 0 12px rgba(0,255,65,0.05);
+}
+
+.btn-ghost:hover {
+  background: rgba(0,255,65,0.08);
+  box-shadow: var(--glow-md);
+}
+
+/* Add other utility classes as needed from the template... */
+
+/* ── ANIMATIONS ── */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: var(--glow-sm); }
+  50% { box-shadow: var(--glow-lg); }
+}
+
+@keyframes scan-line {
+  to { top: 200%; }
+}
+
+@keyframes flicker {
+  0%,90%,92%,97%,100% { opacity: 1; }
+  91%,93%,96%,99% { opacity: 0.2; }
+}
+
+@keyframes glitch-shift {
+  0%,95%,100% { text-shadow: var(--glow-hot); transform: none; }
+  96% { text-shadow: -2px 0 var(--hack-cyan), 2px 0 var(--danger-red); transform: translateX(-2px); }
+  97% { text-shadow: 2px 0 var(--hack-cyan), -2px 0 var(--danger-red); transform: translateX(2px); }
+  98% { text-shadow: var(--glow-hot); transform: skewX(-5deg); }
+}
+
+@keyframes typing {
+  0%, 10% { width: 0; }
+  60%, 85% { width: 100%; }
+  95%, 100% { width: 0; }
+}
+
+@keyframes blink { 50% { opacity: 0; } }
