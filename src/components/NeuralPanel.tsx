@@ -3,53 +3,94 @@ import React, { useState, useEffect } from 'react';
 interface NeuralPanelProps {
   aiMode: boolean;
   faceDetected: boolean;
+  emotion: string;
+  confidence: number;
 }
 
-export const NeuralPanel: React.FC<NeuralPanelProps> = ({ aiMode, faceDetected }) => {
+export const NeuralPanel: React.FC<NeuralPanelProps> = ({ 
+  aiMode, 
+  faceDetected, 
+  emotion, 
+  confidence 
+}) => {
   const [telemetry, setTelemetry] = useState<string[]>([]);
 
   useEffect(() => {
-    const logs = [
-      'INITIALIZING SCANNER...',
-      'BUFFERING NEURAL LINK...',
-      'EYE-TRACKING ACTIVE',
+    const defaultLogs = [
+      'OPTIMIZING OPTIC ARRAY...',
+      'SYNCING BIOMETRICS...',
+      'NEURAL LINK STABLE',
       'VOXEL MAPPING ENABLED',
-      'ENCRYPTING STREAM...',
-      'SYSTEM: STABLE',
     ];
+    
+    const emotionLogs: Record<string, string[]> = {
+      'Happy': ['DOPAMINE SPIKE DETECTED', 'EXPRESSION: POSITIVE', 'NEURAL STATE: HARMONIC'],
+      'Sad': ['SEROTONIN DEPLETION', 'EXPRESSION: NEGATIVE', 'NEURAL STATE: DAMPENED'],
+      'Angry': ['CORTISOL SURGE', 'THREAT LEVEL: RISING', 'EXPRESSION: HOSTILE'],
+      'Surprised': ['ADRENALINE BURST', 'EXPRESSION: SHOCK', 'PATTERN: ANOMALOUS'],
+      'Alert': ['VIGILANCE MODE', 'EYE-TRACKING: FOCUSED', 'AWARENESS: PEAK'],
+      'Neutral': ['BASELINE STABLE', 'EXPRESSION: FLAT', 'SCANNING...'],
+      'Unknown': ['DATA CORRUPTED', 'PATTERN RECOGNITION FAIL', 'RECALIBRATING...']
+    };
+
     let i = 0;
     const interval = setInterval(() => {
-      setTelemetry((prev) => [...prev, logs[i % logs.length]].slice(-4));
+      let pool = defaultLogs;
+      if (faceDetected && aiMode) {
+        pool = [...defaultLogs, ...emotionLogs[emotion || 'Neutral']];
+      }
+      
+      setTelemetry((prev) => [...prev, pool[i % pool.length]].slice(-4));
       i++;
-    }, 2000);
+    }, 1500);
+
     return () => clearInterval(interval);
-  }, []);
+  }, [faceDetected, aiMode, emotion]);
 
   return (
-    <div className="neural-panel">
+    <div className={`neural-panel ${emotion === 'Unknown' ? 'glitch-active' : ''}`}>
       <div className="telemetry-grid">
         <div className="status-item">
           <span className="label">SYSTEM STATUS:</span>
           <span className="value t-ok">OPTIMAL</span>
         </div>
+        
         <div className="status-item">
           <span className="label">AI MODE:</span>
           <span className="value" style={{ color: aiMode ? 'var(--neon-primary)' : 'var(--text-ghost)' }}>
             {aiMode ? 'ACTIVE' : 'PASSIVE'}
           </span>
         </div>
+
         <div className="status-item">
-          <span className="label">FACE DETECTED:</span>
-          <span className="value" style={{ color: faceDetected ? 'var(--neon-hot)' : 'var(--text-disabled)' }}>
-            {faceDetected ? 'YES' : 'NO'}
+          <span className="label">EMOTION STATUS:</span>
+          <span 
+            className={`value ${faceDetected ? 'anim-pulse' : ''}`} 
+            style={{ color: faceDetected ? 'var(--neon-hot)' : 'var(--text-disabled)' }}
+          >
+            {faceDetected ? emotion.toUpperCase() : 'NO TARGET'}
           </span>
         </div>
+
+        {/* ── NEURAL CONFIDENCE BAR ── */}
+        <div className="status-item confidence-box">
+          <span className="label">NEURAL PROBABILITY:</span>
+          <div className="confidence-track">
+            <div 
+              className="confidence-fill" 
+              style={{ width: `${confidence * 100}%` }}
+            ></div>
+          </div>
+          <span className="confidence-text">{(confidence * 100).toFixed(0)}%</span>
+        </div>
       </div>
+
       <div className="telemetry-logs">
         {telemetry.map((log, idx) => (
           <div key={idx} className="log-line anim-typing">{log}</div>
         ))}
       </div>
+
       <style>{`
         .neural-panel {
           padding: var(--space-4);
@@ -62,22 +103,61 @@ export const NeuralPanel: React.FC<NeuralPanelProps> = ({ aiMode, faceDetected }
           position: sticky;
           top: 0;
           z-index: 10;
+          transition: all 0.3s ease;
         }
+
+        .neural-panel.glitch-active {
+          animation: glitch-shift 0.2s infinite;
+          border-bottom-color: var(--danger-red);
+        }
+
         .telemetry-grid {
           display: flex;
-          gap: var(--space-6);
+          gap: var(--space-8);
+          align-items: center;
         }
+
         .status-item {
           display: flex;
           flex-direction: column;
           gap: 2px;
         }
+
+        .confidence-box {
+          min-width: 120px;
+        }
+
+        .confidence-track {
+          width: 100%;
+          height: 4px;
+          background: var(--text-disabled);
+          margin-top: 4px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .confidence-fill {
+          height: 100%;
+          background: var(--neon-primary);
+          box-shadow: var(--glow-sm);
+          transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .confidence-text {
+          font-size: 8px;
+          color: var(--neon-primary);
+          text-align: right;
+          font-weight: 700;
+          margin-top: 2px;
+        }
+
         .label {
           font-size: 9px;
           color: var(--text-primary);
           letter-spacing: 0.1em;
           text-transform: uppercase;
         }
+
         .value {
           font-size: 11px;
           font-weight: 700;
@@ -85,15 +165,32 @@ export const NeuralPanel: React.FC<NeuralPanelProps> = ({ aiMode, faceDetected }
           color: var(--neon-primary);
           text-shadow: var(--glow-sm);
         }
+
+        .anim-pulse {
+          animation: pulse-glow 2s infinite ease-in-out;
+        }
+
         .telemetry-logs {
           font-family: var(--font-terminal);
           font-size: 10px;
           color: var(--text-ghost);
-          min-width: 200px;
+          min-width: 250px;
           text-align: right;
         }
+
         .log-line {
           height: 14px;
+        }
+
+        @keyframes pulse-glow {
+          0%, 100% { text-shadow: var(--glow-sm); opacity: 0.8; }
+          50% { text-shadow: var(--glow-md); opacity: 1; }
+        }
+
+        @media (max-width: 1000px) {
+          .neural-panel { flex-direction: column; gap: 15px; }
+          .telemetry-grid { flex-wrap: wrap; gap: 15px; justify-content: center; }
+          .telemetry-logs { display: none; }
         }
       `}</style>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { NeuralPanel } from './components/NeuralPanel';
 import { ASCIICameraView } from './components/ASCIICameraView';
 import { ControlPanel } from './components/ControlPanel';
@@ -11,16 +11,33 @@ function App() {
     charset: ' .:-=+*#%@',
     mode: 'Matrix',
     aiMode: false,
+    emotionScan: false,
   });
 
-  const [faceDetected, setFaceDetected] = useState(false);
+  const [aiData, setAIData] = useState({
+    detected: false,
+    emotion: 'Neutral',
+    confidence: 0
+  });
+
+  const handleAIUpdate = useCallback((data: any) => {
+    setAIData(data);
+  }, []);
 
   return (
     <div className="app-container">
-      <NeuralPanel aiMode={options.aiMode} faceDetected={faceDetected} />
+      <NeuralPanel 
+        aiMode={options.aiMode} 
+        faceDetected={aiData.detected} 
+        emotion={aiData.emotion}
+        confidence={aiData.confidence}
+      />
       
       <main className="content">
-        <ASCIICameraView options={options} onFaceDetect={setFaceDetected} />
+        <ASCIICameraView 
+          options={options} 
+          onAIUpdate={handleAIUpdate}
+        />
       </main>
 
       <ControlPanel options={options} setOptions={setOptions} />
@@ -38,7 +55,7 @@ function App() {
           flex-direction: column;
           background: var(--void);
           position: relative;
-          min-height: 0; /* Important: Allows flex child to shrink */
+          min-height: 0; 
         }
       `}</style>
     </div>

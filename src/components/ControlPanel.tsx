@@ -8,6 +8,7 @@ interface ControlPanelProps {
     charset: string;
     mode: string;
     aiMode: boolean;
+    emotionScan: boolean;
   };
   setOptions: React.Dispatch<React.SetStateAction<{
     fontSize: number;
@@ -16,6 +17,7 @@ interface ControlPanelProps {
     charset: string;
     mode: string;
     aiMode: boolean;
+    emotionScan: boolean;
   }>>;
 }
 
@@ -78,12 +80,24 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ options, setOptions 
               </button>
             ))}
           </div>
-          <button 
-            className={`btn ai-toggle ${options.aiMode ? 'btn-danger' : 'btn-ghost'}`}
-            onClick={() => handleChange('aiMode', !options.aiMode)}
-          >
-            {options.aiMode ? 'DISABLE AI' : 'ENGAGE AI'}
-          </button>
+          
+          <div className="btn-row-multi">
+            <button 
+              className={`btn ai-toggle ${options.aiMode ? 'btn-danger' : 'btn-ghost'}`}
+              onClick={() => handleChange('aiMode', !options.aiMode)}
+            >
+              {options.aiMode ? 'AI ACTIVE' : 'AI MODE'}
+            </button>
+            <button 
+              className={`btn ai-toggle ${options.emotionScan ? 'btn-scan' : 'btn-ghost'}`}
+              onClick={() => handleChange('emotionScan', !options.emotionScan)}
+            >
+              {options.emotionScan ? 'SCANNIG...' : 'EMOTION SCAN'}
+            </button>
+            <button className="btn btn-ghost opacity-40 cursor-not-allowed">
+              MULTIPLAYER
+            </button>
+          </div>
         </div>
       </div>
 
@@ -117,7 +131,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ options, setOptions 
           align-items: flex-start;
           gap: var(--space-8);
           z-index: 100;
-          flex-shrink: 0; /* Never squash the dock */
+          flex-shrink: 0;
           min-height: fit-content;
         }
 
@@ -126,7 +140,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ options, setOptions 
           display: flex;
           flex-direction: column;
           gap: var(--space-4);
-          max-width: 400px;
+          max-width: 500px;
         }
 
         .section-header {
@@ -142,7 +156,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ options, setOptions 
 
         .dock-divider {
           width: 1px;
-          height: 80px;
+          height: 100px;
           background: linear-gradient(to bottom, transparent, var(--green-600), transparent);
           opacity: 0.5;
         }
@@ -192,27 +206,50 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ options, setOptions 
           gap: var(--space-2);
         }
 
+        .btn-row-multi {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: var(--space-2);
+          width: 100%;
+        }
+
         .btn {
           min-width: 80px;
           justify-content: center;
           font-size: 9px !important;
           letter-spacing: 0.1em !important;
           padding: 6px 12px !important;
+          white-space: nowrap;
+        }
+
+        .ai-toggle {
+          border-width: 2px !important;
+        }
+
+        .btn-danger {
+          background: var(--danger-red);
+          color: var(--void) !important;
+          font-weight: 900;
+          border-color: var(--danger-red) !important;
+          box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+        }
+
+        .btn-scan {
+          background: var(--neon-hot);
+          color: var(--void) !important;
+          font-weight: 900;
+          border-color: var(--neon-hot) !important;
+          box-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
         }
 
         .btn-compact {
           min-width: 70px;
         }
 
-        .ai-toggle {
-          width: 100%;
-          border-width: 2px !important;
-        }
-
-        .btn-danger {
-          background: var(--danger-red);
-          color: var(--void);
-          font-weight: 900;
+        @media (max-width: 1200px) {
+          .btn-row-multi {
+            grid-template-columns: 1fr;
+          }
         }
 
         @media (max-width: 900px) {

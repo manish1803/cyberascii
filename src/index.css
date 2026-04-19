@@ -191,6 +191,47 @@ body::after {
   text-shadow: 0 0 5px var(--neon-primary), 0 0 10px rgba(0, 255, 65, 0.5);
 }
 
+/* ── EMOTIONAL MODES ── */
+.emotion-Angry {
+  color: var(--danger-red) !important;
+  text-shadow: 0 0 10px var(--danger-red), 0 0 20px rgba(255, 0, 0, 0.4) !important;
+  --emotion-color: var(--danger-red);
+}
+.emotion-Happy {
+  color: var(--neon-hot) !important;
+  text-shadow: 0 0 10px var(--neon-hot), 0 0 20px rgba(57, 255, 20, 0.4) !important;
+  --emotion-color: var(--neon-hot);
+}
+.emotion-Sad {
+  color: #5070ff !important;
+  text-shadow: 0 0 10px #5070ff, 0 0 20px rgba(80, 112, 255, 0.4) !important;
+  --emotion-color: #5070ff;
+}
+.emotion-Surprised {
+  color: var(--hack-cyan) !important;
+  text-shadow: 0 0 10px var(--hack-cyan), 0 0 20px rgba(0, 255, 255, 0.4) !important;
+  --emotion-color: var(--hack-cyan);
+}
+.emotion-Alert {
+  color: var(--warn-amber) !important;
+  text-shadow: 0 0 10px var(--warn-amber), 0 0 20px rgba(255, 140, 0, 0.4) !important;
+  --emotion-color: var(--warn-amber);
+}
+.emotion-Neutral {
+  --emotion-color: var(--neon-primary);
+}
+
+#tactical-scanner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+  mix-blend-mode: screen;
+}
+
 .ascii-render.BW {
   color: #FFFFFF;
   text-shadow: 0 0 2px #FFFFFF;
