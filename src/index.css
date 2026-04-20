@@ -465,3 +465,106 @@ body::after {
 .progress-fill {
   animation: bar-pulse 2s infinite;
 }
+
+/* ── MULTIPLAYER LAYOUT ── */
+
+.ascii-viewport.multiplayer-layout {
+  justify-content: stretch;
+  align-items: stretch;
+}
+
+.render-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  gap: 2px;
+  background: var(--green-900);
+}
+
+.render-item {
+  flex: 1;
+  position: relative;
+  background: var(--void);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.render-label {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 8px;
+  color: var(--neon-primary);
+  opacity: 0.6;
+  letter-spacing: 0.1em;
+  z-index: 10;
+  background: rgba(0,0,0,0.5);
+  padding: 2px 6px;
+  border: 1px solid var(--green-900);
+}
+
+/* ── MULTIPLAYER CONTROLS ── */
+
+.multiplayer-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: rgba(0, 255, 65, 0.05);
+  border: 1px solid var(--green-900);
+}
+
+.cyber-input {
+  background: var(--void);
+  border: 1px solid var(--green-800);
+  color: var(--neon-hot);
+  font-family: var(--font-terminal);
+  font-size: 10px;
+  padding: 4px 8px;
+  width: 100%;
+  outline: none;
+}
+
+.cyber-input:focus {
+  border-color: var(--neon-hot);
+  box-shadow: 0 0 5px rgba(57, 255, 20, 0.2);
+}
+
+.multi-btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.multiplayer-status-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--neon-primary);
+  background: rgba(0, 255, 65, 0.1);
+  padding: 4px;
+}
+
+.room-info {
+  font-size: 8px;
+  color: var(--text-primary);
+}
+
+.room-id-text {
+  color: var(--neon-hot);
+  font-weight: 900;
+}
+
+.status-badge {
+  font-size: 9px;
+  font-weight: 900;
+  color: var(--void);
+  background: var(--neon-primary);
+  padding: 2px 6px;
+  text-transform: uppercase;
+}

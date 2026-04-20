@@ -4,12 +4,14 @@ interface NeuralPanelProps {
   aiMode: boolean;
   faceDetected: boolean;
   confidence: number;
+  multiplayerStatus: string;
 }
 
 export const NeuralPanel: React.FC<NeuralPanelProps> = ({ 
   aiMode, 
   faceDetected, 
-  confidence 
+  confidence,
+  multiplayerStatus
 }) => {
   const [telemetry, setTelemetry] = useState<string[]>([]);
 
@@ -23,9 +25,12 @@ export const NeuralPanel: React.FC<NeuralPanelProps> = ({
     
     let i = 0;
     const interval = setInterval(() => {
-      let pool = defaultLogs;
+      let pool = [...defaultLogs];
       if (faceDetected && aiMode) {
-        pool = [...defaultLogs, 'TARGET ACQUIRED', 'ANALYZING MESH...', 'LOCKED'];
+        pool = [...pool, 'TARGET ACQUIRED', 'ANALYZING MESH...', 'LOCKED'];
+      }
+      if (multiplayerStatus !== 'OFFLINE') {
+        pool = [...pool, `SIGNAL: ${multiplayerStatus}`, 'P2P_HANDSHAKE_INIT'];
       }
       
       setTelemetry((prev) => [...prev, pool[i % pool.length]].slice(-4));
@@ -33,7 +38,7 @@ export const NeuralPanel: React.FC<NeuralPanelProps> = ({
     }, 1500);
 
     return () => clearInterval(interval);
-  }, [faceDetected, aiMode]);
+  }, [faceDetected, aiMode, multiplayerStatus]);
 
   return (
     <div className="neural-panel">
@@ -44,9 +49,9 @@ export const NeuralPanel: React.FC<NeuralPanelProps> = ({
         </div>
         
         <div className="status-item">
-          <span className="label">AI MODE:</span>
-          <span className="value" style={{ color: aiMode ? 'var(--neon-primary)' : 'var(--text-ghost)' }}>
-            {aiMode ? 'ACTIVE' : 'PASSIVE'}
+          <span className="label">SIGNAL LINK:</span>
+          <span className={`value ${multiplayerStatus === 'CONNECTED' ? 't-ok' : ''}`} style={{ color: multiplayerStatus === 'OFFLINE' ? 'var(--text-ghost)' : 'var(--neon-primary)' }}>
+            {multiplayerStatus}
           </span>
         </div>
 

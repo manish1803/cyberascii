@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface ControlPanelProps {
   options: {
@@ -17,9 +17,22 @@ interface ControlPanelProps {
     mode: string;
     aiMode: boolean;
   }>>;
+  roomId: string;
+  multiplayerStatus: string;
+  onMultiplayerAction: (action: 'CREATE' | 'JOIN', id: string) => void;
+  onDisconnect: () => void;
 }
 
-export const ControlPanel: React.FC<ControlPanelProps> = ({ options, setOptions }) => {
+export const ControlPanel: React.FC<ControlPanelProps> = ({ 
+  options, 
+  setOptions,
+  roomId: activeRoomId,
+  multiplayerStatus,
+  onMultiplayerAction,
+  onDisconnect
+}) => {
+  const [inputRoomId, setInputRoomId] = useState('');
+  
   const charsets = {
     Classic: ' .:-=+*#%@',
     Matrix: ' 01',
@@ -32,6 +45,12 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ options, setOptions 
 
   const handleChange = (key: string, value: string | number | boolean) => {
     setOptions((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleAction = (type: 'CREATE' | 'JOIN') => {
+    const id = type === 'CREATE' ? Math.random().toString(36).substring(7).toUpperCase() : inputRoomId;
+    if (type === 'JOIN' && !inputRoomId) return;
+    onMultiplayerAction(type, id);
   };
 
   return (
@@ -86,9 +105,34 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ options, setOptions 
             >
               {options.aiMode ? 'AI ACTIVE' : 'AI MODE'}
             </button>
-            <button className="btn btn-ghost opacity-40 cursor-not-allowed">
-              MULTIPLAYER
-            </button>
+            
+            {multiplayerStatus === 'DISCONNECTED' ? (
+              <div className="multiplayer-controls">
+                <input 
+                  type="text" 
+                  placeholder="ROOM_ID" 
+                  value={inputRoomId}
+                  onChange={(e) => setInputRoomId(e.target.value.toUpperCase())}
+                  className="cyber-input"
+                />
+                <div className="multi-btn-row">
+                  <button className="btn btn-primary" onClick={() => handleAction('CREATE')}>CREATE</button>
+                  <button className="btn btn-ghost" onClick={() => handleAction('JOIN')}>JOIN</button>
+                </div>
+              </div>
+            ) : (
+              <div className="multiplayer-status-box">
+                <div className="room-info">ROOM: <span className="room-id-text">{activeRoomId}</span></div>
+                <div className="status-badge">{multiplayerStatus}</div>
+                <button 
+                  className="btn btn-danger btn-compact" 
+                  style={{ marginTop: '4px', width: '100%' }}
+                  onClick={onDisconnect}
+                >
+                  DISCONNECT
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
