@@ -16,35 +16,53 @@ export interface FaceData {
 
 export class AIEngine {
   private detector: faceLandmarksDetection.FaceLandmarksDetector | null = null;
-  private isInitialized = false;
+  private _isInitialized = false;
 
-  async initialize() {
+  get isInitialized() {
+    return this._isInitialized;
+  }
+
+  async initialize(onProgress?: (step: string, progress: number) => void) {
     if (this.isInitialized) return;
 
     try {
+      onProgress?.('INITIALIZING NEURAL BACKEND', 10);
       // Initialize TFJS Backend
       await tf.setBackend('webgl').catch(() => tf.setBackend('cpu'));
       await tf.ready();
 
+      onProgress?.('LOADING FACE MESH MODELS', 30);
       // Load the MediaPipe Face Mesh model
       const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
       const detectorConfig: faceLandmarksDetection.MediaPipeFaceMeshTfjsModelConfig = {
         runtime: 'tfjs',
-        refineLandmarks: false, // Optimized for speed
+        refineLandmarks: false, // Precision no longer needed without emotion
         maxFaces: 1
       };
 
       this.detector = await faceLandmarksDetection.createDetector(model, detectorConfig);
-      this.isInitialized = true;
-      console.log('AI Engine: Face Mesh Detector Initialized');
+      
+      onProgress?.('CALIBRATING NEURAL ENGINE', 80);
+      try {
+        // Warmup the model with a dummy tensor (rank 3) to prevent first-detection lag
+        const dummyTensor = tf.zeros([480, 640, 3]);
+        await this.detector.estimateFaces(dummyTensor as any);
+        tf.dispose(dummyTensor);
+      } catch (warmupErr) {
+        console.warn('AI Engine Warmup skipped:', warmupErr);
+      }
+
+      this._isInitialized = true;
+      onProgress?.('NEURAL ENGINE READY', 100);
+      console.log('AI Engine: Face Mesh Detector Initialized & Warmed Up');
     } catch (error) {
       console.error('AI Engine Initialization Failed:', error);
       throw error;
     }
   }
 
-  async detect(video: HTMLVideoElement): Promise<FaceData | null> {
-    if (!this.detector) return null;
+  async detect(video: HTMLVideoElement | HTMLCanvasElement): Promise<FaceData | null> {
+    if (!this.detector || !this._isInitialized) return null;
 
     try {
       const estimationConfig = { flipHorizontal: false };

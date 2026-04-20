@@ -3,14 +3,12 @@ import React, { useState, useEffect } from 'react';
 interface NeuralPanelProps {
   aiMode: boolean;
   faceDetected: boolean;
-  emotion: string;
   confidence: number;
 }
 
 export const NeuralPanel: React.FC<NeuralPanelProps> = ({ 
   aiMode, 
   faceDetected, 
-  emotion, 
   confidence 
 }) => {
   const [telemetry, setTelemetry] = useState<string[]>([]);
@@ -23,21 +21,11 @@ export const NeuralPanel: React.FC<NeuralPanelProps> = ({
       'VOXEL MAPPING ENABLED',
     ];
     
-    const emotionLogs: Record<string, string[]> = {
-      'Happy': ['DOPAMINE SPIKE DETECTED', 'EXPRESSION: POSITIVE', 'NEURAL STATE: HARMONIC'],
-      'Sad': ['SEROTONIN DEPLETION', 'EXPRESSION: NEGATIVE', 'NEURAL STATE: DAMPENED'],
-      'Angry': ['CORTISOL SURGE', 'THREAT LEVEL: RISING', 'EXPRESSION: HOSTILE'],
-      'Surprised': ['ADRENALINE BURST', 'EXPRESSION: SHOCK', 'PATTERN: ANOMALOUS'],
-      'Alert': ['VIGILANCE MODE', 'EYE-TRACKING: FOCUSED', 'AWARENESS: PEAK'],
-      'Neutral': ['BASELINE STABLE', 'EXPRESSION: FLAT', 'SCANNING...'],
-      'Unknown': ['DATA CORRUPTED', 'PATTERN RECOGNITION FAIL', 'RECALIBRATING...']
-    };
-
     let i = 0;
     const interval = setInterval(() => {
       let pool = defaultLogs;
       if (faceDetected && aiMode) {
-        pool = [...defaultLogs, ...emotionLogs[emotion || 'Neutral']];
+        pool = [...defaultLogs, 'TARGET ACQUIRED', 'ANALYZING MESH...', 'LOCKED'];
       }
       
       setTelemetry((prev) => [...prev, pool[i % pool.length]].slice(-4));
@@ -45,10 +33,10 @@ export const NeuralPanel: React.FC<NeuralPanelProps> = ({
     }, 1500);
 
     return () => clearInterval(interval);
-  }, [faceDetected, aiMode, emotion]);
+  }, [faceDetected, aiMode]);
 
   return (
-    <div className={`neural-panel ${emotion === 'Unknown' ? 'glitch-active' : ''}`}>
+    <div className="neural-panel">
       <div className="telemetry-grid">
         <div className="status-item">
           <span className="label">SYSTEM STATUS:</span>
@@ -63,12 +51,12 @@ export const NeuralPanel: React.FC<NeuralPanelProps> = ({
         </div>
 
         <div className="status-item">
-          <span className="label">EMOTION STATUS:</span>
+          <span className="label">TARGET_STATUS:</span>
           <span 
             className={`value ${faceDetected ? 'anim-pulse' : ''}`} 
             style={{ color: faceDetected ? 'var(--neon-hot)' : 'var(--text-disabled)' }}
           >
-            {faceDetected ? emotion.toUpperCase() : 'NO TARGET'}
+            {faceDetected ? 'LOCKED' : 'SEARCHING'}
           </span>
         </div>
 
@@ -104,11 +92,6 @@ export const NeuralPanel: React.FC<NeuralPanelProps> = ({
           top: 0;
           z-index: 10;
           transition: all 0.3s ease;
-        }
-
-        .neural-panel.glitch-active {
-          animation: glitch-shift 0.2s infinite;
-          border-bottom-color: var(--danger-red);
         }
 
         .telemetry-grid {

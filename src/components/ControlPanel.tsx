@@ -8,7 +8,6 @@ interface ControlPanelProps {
     charset: string;
     mode: string;
     aiMode: boolean;
-    emotionScan: boolean;
   };
   setOptions: React.Dispatch<React.SetStateAction<{
     fontSize: number;
@@ -17,7 +16,6 @@ interface ControlPanelProps {
     charset: string;
     mode: string;
     aiMode: boolean;
-    emotionScan: boolean;
   }>>;
 }
 
@@ -87,12 +85,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ options, setOptions 
               onClick={() => handleChange('aiMode', !options.aiMode)}
             >
               {options.aiMode ? 'AI ACTIVE' : 'AI MODE'}
-            </button>
-            <button 
-              className={`btn ai-toggle ${options.emotionScan ? 'btn-scan' : 'btn-ghost'}`}
-              onClick={() => handleChange('emotionScan', !options.emotionScan)}
-            >
-              {options.emotionScan ? 'SCANNIG...' : 'EMOTION SCAN'}
             </button>
             <button className="btn btn-ghost opacity-40 cursor-not-allowed">
               MULTIPLAYER
@@ -208,7 +200,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ options, setOptions 
 
         .btn-row-multi {
           display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
+          grid-template-columns: 1fr 1fr;
           gap: var(--space-2);
           width: 100%;
         }
@@ -232,14 +224,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ options, setOptions 
           font-weight: 900;
           border-color: var(--danger-red) !important;
           box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
-        }
-
-        .btn-scan {
-          background: var(--neon-hot);
-          color: var(--void) !important;
-          font-weight: 900;
-          border-color: var(--neon-hot) !important;
-          box-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
         }
 
         .btn-compact {
