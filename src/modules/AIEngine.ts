@@ -12,6 +12,7 @@ export interface FaceBox {
 export interface FaceData {
   box: FaceBox;
   landmarks: any[];
+  score: number;
 }
 
 export class AIEngine {
@@ -83,7 +84,8 @@ export class AIEngine {
 
         return {
           box: { x, y, width, height },
-          landmarks: (face as any).keypoints || []
+          landmarks: (face as any).keypoints || [],
+          score: (face as any).score || face.box.score || 0.9 // Fallback to 0.9 if model doesn't provide it
         };
       }
     } catch (error) {

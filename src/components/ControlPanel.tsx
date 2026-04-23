@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface ControlPanelProps {
   options: {
@@ -17,9 +17,27 @@ interface ControlPanelProps {
     mode: string;
     aiMode: boolean;
   }>>;
+  roomId: string;
+  multiplayerStatus: string;
+  onMultiplayerAction: (action: 'CREATE' | 'JOIN', id: string) => void;
+  onDisconnect: () => void;
+  onToggleFullScreen: () => void;
+  onCapture: () => void;
 }
 
-export const ControlPanel: React.FC<ControlPanelProps> = ({ options, setOptions }) => {
+export const ControlPanel: React.FC<ControlPanelProps> = ({ 
+  options, 
+  setOptions,
+  roomId: activeRoomId,
+  multiplayerStatus,
+  onMultiplayerAction,
+  onDisconnect,
+  onToggleFullScreen,
+  onCapture
+}) => {
+  const [inputRoomId, setInputRoomId] = useState(activeRoomId || '');
+  const [copied, setCopied] = useState(false);
+  
   const charsets = {
     Classic: ' .:-=+*#%@',
     Matrix: ' 01',
@@ -32,6 +50,19 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ options, setOptions 
 
   const handleChange = (key: string, value: string | number | boolean) => {
     setOptions((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleAction = (type: 'CREATE' | 'JOIN') => {
+    const id = type === 'CREATE' ? Math.random().toString(36).substring(7).toUpperCase() : inputRoomId;
+    if (type === 'JOIN' && !inputRoomId) return;
+    onMultiplayerAction(type, id);
+  };
+
+  const handleCopyLink = () => {
+    const url = `${window.location.origin}${window.location.pathname}?room=${activeRoomId}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -78,18 +109,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ options, setOptions 
               </button>
             ))}
           </div>
-          
-          <div className="btn-row-multi">
-            <button 
-              className={`btn ai-toggle ${options.aiMode ? 'btn-danger' : 'btn-ghost'}`}
-              onClick={() => handleChange('aiMode', !options.aiMode)}
-            >
-              {options.aiMode ? 'AI ACTIVE' : 'AI MODE'}
-            </button>
-            <button className="btn btn-ghost opacity-40 cursor-not-allowed">
-              MULTIPLAYER
-            </button>
-          </div>
         </div>
       </div>
 
@@ -111,20 +130,79 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ options, setOptions 
         </div>
       </div>
 
+      <div className="dock-divider"></div>
+
+      {/* ── TOOLS MODULE ── */}
+      <div className="dock-section">
+        <div className="section-header">HACKER TOOLS</div>
+        <div className="btn-stack">
+          <div className="btn-row-multi">
+            <button 
+              className={`btn ai-toggle ${options.aiMode ? 'btn-danger' : 'btn-ghost'}`}
+              onClick={() => handleChange('aiMode', !options.aiMode)}
+            >
+              {options.aiMode ? 'AI ACTIVE' : 'AI MODE'}
+            </button>
+
+            <button 
+              className="btn btn-primary"
+              onClick={onCapture}
+            >
+              SAVE PHOTO
+            </button>
+          </div>
+            
+          {multiplayerStatus === 'DISCONNECTED' ? (
+            <div className="multiplayer-controls">
+              <input 
+                type="text" 
+                placeholder="ROOM_ID" 
+                value={inputRoomId}
+                onChange={(e) => setInputRoomId(e.target.value.toUpperCase())}
+                className="cyber-input"
+              />
+              <div className="multi-btn-row">
+                <button className="btn btn-primary" onClick={() => handleAction('CREATE')}>CREATE</button>
+                <button className="btn btn-ghost" onClick={() => handleAction('JOIN')}>JOIN</button>
+              </div>
+            </div>
+          ) : (
+            <div className="multiplayer-status-box">
+              <div className="room-info">ROOM: <span className="room-id-text">{activeRoomId}</span></div>
+              <div className="status-badge">{multiplayerStatus}</div>
+              <div className="multi-btn-row" style={{ marginTop: '8px' }}>
+                <button 
+                  className={`btn ${copied ? 'btn-primary' : 'btn-ghost'} btn-compact`} 
+                  onClick={handleCopyLink}
+                >
+                  {copied ? 'COPIED!' : 'COPY LINK'}
+                </button>
+                <button 
+                  className="btn btn-danger btn-compact" 
+                  onClick={onDisconnect}
+                >
+                  DISCONNECT
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
       <style>{`
         .control-dock {
           background: rgba(9, 18, 9, 0.9);
           backdrop-filter: blur(12px);
           border-top: 2px solid var(--neon-primary);
           box-shadow: 0 -10px 30px rgba(0, 255, 65, 0.15);
-          padding: 24px 40px 40px 40px;
+          padding: 20px 40px;
           display: flex;
-          justify-content: space-around;
+          justify-content: space-between;
           align-items: flex-start;
-          gap: var(--space-8);
+          gap: var(--space-6);
           z-index: 100;
           flex-shrink: 0;
-          min-height: fit-content;
+          min-height: 180px;
         }
 
         .dock-section {

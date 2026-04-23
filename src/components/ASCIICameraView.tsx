@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { ASCIIEngine } from '../modules/ASCIIEngine';
 import { AIEngine } from '../modules/AIEngine';
 
@@ -14,22 +14,95 @@ interface ASCIICameraViewProps {
   onAIUpdate: (data: { detected: boolean; confidence: number }) => void;
   videoElement: HTMLVideoElement | null;
   aiEngine: AIEngine;
+  remoteStream: MediaStream | null;
 }
 
-export const ASCIICameraView: React.FC<ASCIICameraViewProps> = ({ options, onAIUpdate, videoElement, aiEngine }) => {
+export const ASCIICameraView = forwardRef(({ 
+  options, 
+  onAIUpdate, 
+  videoElement, 
+  aiEngine,
+  remoteStream
+}: ASCIICameraViewProps, ref) => {
   const preRef = useRef<HTMLPreElement>(null);
+  const remotePreRef = useRef<HTMLPreElement>(null);
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   
   // Instance Refs
   const asciiRef = useRef<ASCIIEngine>(new ASCIIEngine());
-  
   const latestFaceBox = useRef<any>(null);
+
+  // Expose capture logic to parent
+  useImperativeHandle(ref, () => ({
+    capturePhoto: () => {
+      if (!preRef.current) return;
+      
+      const text = preRef.current.textContent || '';
+      const lines = text.split('\n');
+      const fontSize = options.fontSize;
+      
+      // Create snapshot canvas
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d')!;
+      
+      // Calculate dimensions based on font
+      ctx.font = `${fontSize}px "Share Tech Mono", monospace`;
+      const charWidth = ctx.measureText('M').width;
+      const lineHeight = fontSize;
+      
+      canvas.width = lines[0].length * charWidth;
+      canvas.height = lines.length * lineHeight;
+      
+      // Background
+      ctx.fillStyle = '#000800'; // Void
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw Text
+      ctx.font = `${fontSize}px "Share Tech Mono", monospace`;
+      ctx.textBaseline = 'top';
+      
+      // Mode colors
+      const colors = {
+        Matrix: '#00ff41',
+        BW: '#ffffff',
+        Retro: '#ff8c00',
+        Color: '#00ffff'
+      };
+      ctx.fillStyle = (colors as any)[options.mode] || colors.Matrix;
+
+      lines.forEach((line, i) => {
+        ctx.fillText(line, 0, i * lineHeight);
+      });
+
+      // Download
+      const link = document.createElement('a');
+      link.download = `cyber-ascii-${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  }));
 
   // Options Ref
   const optionsRef = useRef(options);
   useEffect(() => {
     optionsRef.current = options;
   }, [options]);
+
+  // Handle Remote Video Setup
+  useEffect(() => {
+    if (remoteStream) {
+      const video = document.createElement('video');
+      video.srcObject = remoteStream;
+      video.autoplay = true;
+      video.muted = true; // Avoid feedback
+      remoteVideoRef.current = video;
+      return () => {
+        video.srcObject = null;
+        remoteVideoRef.current = null;
+      };
+    }
+  }, [remoteStream]);
 
   useEffect(() => {
     if (!videoElement) return;
@@ -43,16 +116,12 @@ export const ASCIICameraView: React.FC<ASCIICameraViewProps> = ({ options, onAIU
       
       const { aiMode } = optionsRef.current;
       
-      // Only attempt detection if enabled
       if (aiMode) {
         try {
           const data = await aiEngine.detect(videoElement);
           if (data && data.box) {
             latestFaceBox.current = data.box;
-            onAIUpdate({ 
-              detected: true, 
-              confidence: 0.9 // Simplified without emotion classification
-            });
+            onAIUpdate({ detected: true, confidence: data.score });
           } else {
             latestFaceBox.current = null;
             onAIUpdate({ detected: false, confidence: 0 });
@@ -65,7 +134,6 @@ export const ASCIICameraView: React.FC<ASCIICameraViewProps> = ({ options, onAIU
         onAIUpdate({ detected: false, confidence: 0 });
       }
 
-      // Schedule next detection
       detectionId = setTimeout(runDetection, 50); 
     };
     
@@ -75,11 +143,29 @@ export const ASCIICameraView: React.FC<ASCIICameraViewProps> = ({ options, onAIU
       if (!isMounted) return;
       
       const { fontSize, charset, gain, contrast, aiMode } = optionsRef.current;
-      
-      if (preRef.current) {
-        const scale = 16 / fontSize;
-        const width = Math.floor(80 * scale);
-        const height = Math.floor(40 * scale);
+      const aspect = remoteStream ? 1.0 : 2.0; // Narrower if split screen
+
+      // Render Local
+      if (preRef.current && preRef.current.parentElement && videoElement.videoWidth > 0) {
+        const container = preRef.current.parentElement;
+        const widthPx = container.clientWidth;
+        const heightPx = container.clientHeight;
+        
+        const videoAspect = videoElement.videoWidth / videoElement.videoHeight;
+        const charWidth = fontSize * 0.55; // Refined for Share Tech Mono
+        const charHeight = fontSize;
+        const charAspect = charWidth / charHeight;
+
+        // Calculate columns to fit width
+        let width = Math.floor(widthPx / charWidth);
+        // Calculate rows to maintain video aspect ratio
+        let height = Math.floor((width * charAspect) / videoAspect);
+        
+        // If it's too tall for the container, scale down
+        if (height * charHeight > heightPx) {
+          height = Math.floor(heightPx / charHeight);
+          width = Math.floor((height * videoAspect) / charAspect);
+        }
 
         const ascii = asciiRef.current.process(videoElement, {
           width,
@@ -92,7 +178,38 @@ export const ASCIICameraView: React.FC<ASCIICameraViewProps> = ({ options, onAIU
         preRef.current.textContent = ascii;
       }
 
-      if (overlayCanvasRef.current) {
+      // Render Remote
+      if (remotePreRef.current && remotePreRef.current.parentElement && remoteVideoRef.current && remoteVideoRef.current.videoWidth > 0) {
+        const container = remotePreRef.current.parentElement;
+        const widthPx = container.clientWidth;
+        const heightPx = container.clientHeight;
+        
+        const videoAspect = remoteVideoRef.current.videoWidth / remoteVideoRef.current.videoHeight;
+        const charWidth = fontSize * 0.55;
+        const charHeight = fontSize;
+        const charAspect = charWidth / charHeight;
+
+        let width = Math.floor(widthPx / charWidth);
+        let height = Math.floor((width * charAspect) / videoAspect);
+        
+        if (height * charHeight > heightPx) {
+          height = Math.floor(heightPx / charHeight);
+          width = Math.floor((height * videoAspect) / charAspect);
+        }
+
+        const ascii = asciiRef.current.process(remoteVideoRef.current, {
+          width,
+          height,
+          chars: charset,
+          gain,
+          contrast,
+          faceBox: null
+        });
+        remotePreRef.current.textContent = ascii;
+      }
+
+      // Tactical Overlay (Local only)
+      if (overlayCanvasRef.current && !remoteStream) {
         const canvas = overlayCanvasRef.current;
         const ctx = canvas.getContext('2d');
         if (ctx) {
@@ -112,37 +229,19 @@ export const ASCIICameraView: React.FC<ASCIICameraViewProps> = ({ options, onAIU
             const h = (box.height / vH) * canvas.height;
 
             ctx.save();
-            ctx.beginPath();
-            ctx.rect(x, y, w, h);
-            ctx.clip();
             ctx.filter = 'contrast(1.2) brightness(1.1) sepia(0.3) hue-rotate(80deg)';
             ctx.drawImage(videoElement, box.x, box.y, box.width, box.height, x, y, w, h);
-            ctx.globalAlpha = 0.2;
-            ctx.fillStyle = '#000';
-            for (let i = 0; i < h; i += 2) {
-              ctx.fillRect(x, y + i, w, 1);
-            }
             ctx.restore();
 
             const color = '#00ff41';
-            
             ctx.strokeStyle = color;
             ctx.lineWidth = 2;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = color;
             const pad = 10;
             const bl = 20;
-            
             ctx.beginPath(); ctx.moveTo(x - pad, y - pad + bl); ctx.lineTo(x - pad, y - pad); ctx.lineTo(x - pad + bl, y - pad); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(x + w + pad - bl, y - pad); ctx.lineTo(x + w + pad, y - pad); ctx.lineTo(x + w + pad, y - pad + bl); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(x - pad, y + h + pad - bl); ctx.lineTo(x - pad, y + h + pad); ctx.lineTo(x - pad + bl, y + h + pad); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(x + w + pad - bl, y + h + pad); ctx.lineTo(x + w + pad, y + h + pad); ctx.lineTo(x + w + pad, y + h + pad - bl); ctx.stroke();
-
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = color;
-            ctx.font = 'bold 10px Rajdhani, monospace';
-            ctx.fillText(`ID: ${optionsRef.current.mode}-SCANNER`, x - pad, y - pad - 15);
-            ctx.fillText(`MODE: BIOMETRIC_LOCKED`, x - pad, y - pad - 5);
           }
         }
       }
@@ -155,28 +254,17 @@ export const ASCIICameraView: React.FC<ASCIICameraViewProps> = ({ options, onAIU
       cancelAnimationFrame(animationId);
       clearTimeout(detectionId);
     };
-  }, [videoElement, aiEngine, onAIUpdate]);
+  }, [videoElement, aiEngine, onAIUpdate, remoteStream]);
 
   const getHudStatusText = () => {
     const { aiMode } = options;
-    const isDetected = !!latestFaceBox.current;
-
-    if (!aiMode) return 'SIGNAL ACTIVE';
-    
-    if (isDetected) {
-      return 'TARGET ACQUIRED';
-    }
-    return 'SCANNING...';
+    if (remoteStream) return 'MULTI-STREAM ACTIVE';
+    return aiMode && latestFaceBox.current ? 'TARGET ACQUIRED' : 'SIGNAL ACTIVE';
   };
 
   return (
-    <div className="ascii-viewport">
+    <div className={`ascii-viewport ${remoteStream ? 'multiplayer-layout' : ''}`}>
       <div className="hud-overlay">
-        <div className="hud-corner top-left"></div>
-        <div className="hud-corner top-right"></div>
-        <div className="hud-corner bottom-left"></div>
-        <div className="hud-corner bottom-right"></div>
-        
         <div className="hud-header">
           <div className="hud-tag">ID: {options.mode}-RENDER</div>
           <div className="hud-status">
@@ -184,25 +272,34 @@ export const ASCIICameraView: React.FC<ASCIICameraViewProps> = ({ options, onAIU
             {getHudStatusText()}
           </div>
         </div>
-
-        <div className="hud-footer">
-          <div className="hud-metrics">
-            <span>RES: {Math.floor(80 * (16 / options.fontSize))}x{Math.floor(40 * (16 / options.fontSize))}</span>
-            <span>GA: {options.gain.toFixed(1)}</span>
-          </div>
-          <div className="hud-branding">CYBERASCII VISION PRO</div>
-        </div>
       </div>
 
-      <canvas id="tactical-scanner" ref={overlayCanvasRef} />
+      {!remoteStream && <canvas id="tactical-scanner" ref={overlayCanvasRef} />}
 
-      <pre 
-        ref={preRef} 
-        style={{ fontSize: `${options.fontSize}px` }} 
-        className={`ascii-render ${options.mode}`}
-      ></pre>
+      <div className="render-container">
+        <div className="render-item local">
+          <div className="render-label">LOCAL_FEED</div>
+          <pre 
+            ref={preRef} 
+            style={{ fontSize: `${options.fontSize}px` }} 
+            className={`ascii-render ${options.mode}`}
+          ></pre>
+        </div>
+
+        {remoteStream && (
+          <div className="render-item remote">
+            <div className="render-label">REMOTE_PEER</div>
+            <pre 
+              ref={remotePreRef} 
+              style={{ fontSize: `${options.fontSize}px` }} 
+              className={`ascii-render ${options.mode}`}
+            ></pre>
+          </div>
+        )}
+      </div>
+
       <div className="scanline"></div>
       <div className="vignette"></div>
     </div>
   );
-};
+});

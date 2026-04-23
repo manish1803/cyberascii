@@ -1,73 +1,105 @@
-# React + TypeScript + Vite
+# 🖥️ CyberASCII Vision Pro
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **Tactical Biometric ASCII Overlay & P2P Hacker Duel Engine**
 
-Currently, two official plugins are available:
+CyberASCII Vision Pro is a high-performance, real-time video processing engine that transforms standard camera feeds into dynamic ASCII art matrices. Featuring AI-powered face tracking, tactical HUD overlays, and a WebRTC-based multiplayer "Hacker Duel" mode, it bridges the gap between retro terminal aesthetics and modern neural processing.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🚀 Core Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🟢 Real-Time ASCII Engine
+- **Multiple Rendering Modes**: Choose from Classic, Matrix, Retro, and Full-Color modes.
+- **Dynamic Charsets**: From minimal density to high-detail blocks and terminal symbols.
+- **High Performance**: Optimized canvas-to-text processing for 60FPS fluid motion.
 
-## Expanding the ESLint configuration
+### 🤖 Neural Mapping & Biometrics
+- **AI Face Mesh**: Integrated MediaPipe face detection for real-time biometric tracking.
+- **Tactical Overlays**: High-precision bounding boxes and corner brackets that follow targets.
+- **Neural Telemetry**: Real-time probability readouts and signal status monitoring.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 🌐 P2P Multiplayer (Hacker Duel)
+- **WebRTC Streaming**: Direct peer-to-peer video streaming encoded in ASCII.
+- **Side-by-Side HUD**: View your feed and your peer's feed simultaneously in a split-screen terminal.
+- **Room Sharing**: Generate unique Room IDs or share direct links (`?room=XYZ`) for instant joining.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🛠️ Tech Stack
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Frontend
+- **Framework**: [React 19](https://react.dev/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **AI/ML**: [MediaPipe / TensorFlow.js](https://google.github.io/mediapipe/)
+- **Networking**: [WebRTC](https://webrtc.org/) & [Socket.io-client](https://socket.io/)
+
+### Backend (Signaling)
+- **Runtime**: [Node.js](https://nodejs.org/)
+- **Server**: [Express](https://expressjs.com/)
+- **Signaling**: [Socket.io](https://socket.io/)
+
+### Design System
+- **Styling**: Vanilla CSS (Cyberpunk Design System)
+- **Typography**: Google Fonts (Orbitron, Rajdhani, Share Tech Mono)
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Manish1803/cyberascii.git
+cd cyberascii
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Install Dependencies
+```bash
+# Install frontend dependencies
+npm install
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Install signaling server dependencies
+cd server
+npm install
+cd ..
 ```
+
+### 3. Run the Application
+You will need two terminal windows:
+
+**Terminal 1: Signaling Server**
+```bash
+npm run server
+```
+
+**Terminal 2: Frontend Client**
+```bash
+npm run dev
+```
+
+---
+
+## 🎮 How to Use Multiplayer
+1. Open the app in two separate browser tabs or on two different machines.
+2. In **Tab 1**, click **CREATE** in the multiplayer dock to generate a Room ID.
+3. Click **COPY LINK** to share the direct URL with a peer.
+4. In **Tab 2**, either use the link or paste the Room ID and click **JOIN**.
+5. Both users will now see each other in a real-time ASCII "Duel" interface.
+
+---
+
+## 🔮 Future Improvements
+- [ ] **Global Lobby**: A public matchmaking area for random hacker encounters.
+- [ ] **Audio Visualization**: Map ASCII density to real-time audio frequencies.
+- [ ] **Clip Recording**: Export and save ASCII-encoded video clips as GIFs or MP4s.
+- [ ] **Vision Pro Integration**: Full support for Apple Vision Pro gesture-based optic controls.
+
+---
+
+## 📜 License
+Internal Project - All Rights Reserved.
+
+---
+
+> [!TIP]
+> For the best aesthetic experience, use the app in Fullscreen mode (F11) on a high-refresh-rate monitor.
