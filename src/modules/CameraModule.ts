@@ -2,7 +2,7 @@ export class CameraModule {
   private video: HTMLVideoElement | null = null;
   private stream: MediaStream | null = null;
 
-  async initialize(width: number, height: number, onProgress?: (step: string, progress: number) => void): Promise<HTMLVideoElement> {
+  async initialize(width: number, height: number, audio: boolean = false, onProgress?: (step: string, progress: number) => void): Promise<HTMLVideoElement> {
     if (this.video) return this.video;
 
     try {
@@ -13,7 +13,7 @@ export class CameraModule {
           height: { ideal: height },
           facingMode: 'user'
         },
-        audio: false
+        audio
       });
 
       onProgress?.('CALIBRATING SENSORS', 40);
@@ -21,6 +21,7 @@ export class CameraModule {
       this.video.srcObject = this.stream;
       this.video.autoplay = true;
       this.video.playsInline = true;
+      this.video.muted = true; // Always mute local mirror to avoid audio feedback loop
 
       return new Promise((resolve) => {
         if (!this.video) return;

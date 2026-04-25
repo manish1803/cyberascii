@@ -2,60 +2,67 @@
 
 > **Tactical Biometric ASCII Overlay & P2P Hacker Duel Engine**
 
-CyberASCII Vision Pro is a high-performance, real-time video processing engine that transforms standard camera feeds into dynamic ASCII art matrices. Featuring AI-powered face tracking, tactical HUD overlays, and a WebRTC-based multiplayer "Hacker Duel" mode, it bridges the gap between retro terminal aesthetics and modern neural processing.
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-8.0-646CFF?style=flat-square&logo=vite)](https://vitejs.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-Internal-red?style=flat-square)](LICENSE)
+
+**CyberASCII Vision Pro** is a high-performance, real-time video processing engine that transforms standard camera feeds into dynamic ASCII art matrices. Featuring AI-powered face tracking, tactical HUD overlays, and a WebRTC-based multiplayer "Hacker Duel" mode, it bridges the gap between retro terminal aesthetics and modern neural processing.
 
 ---
 
 ## 🚀 Core Features
 
 ### 🟢 Real-Time ASCII Engine
-- **Multiple Rendering Modes**: Choose from Classic, Matrix, Retro, and Full-Color modes.
-- **Dynamic Charsets**: From minimal density to high-detail blocks and terminal symbols.
-- **High Performance**: Optimized canvas-to-text processing for 60FPS fluid motion.
+- **Multiple Rendering Modes**: Toggle between `Matrix` (green-on-black), `BW` (classic monochrome), `Retro` (amber terminal), and `Full-Color` (RGB-mapped) modes.
+- **Dynamic Charsets**: Select from multiple density sets, including `Classic`, `Matrix (01)`, `HighDetail`, `Blocks`, and `Minimal`.
+- **High Performance**: Optimized canvas-to-text processing ensuring a fluid 60FPS experience even on mobile devices.
 
 ### 🤖 Neural Mapping & Biometrics
-- **AI Face Mesh**: Integrated MediaPipe face detection for real-time biometric tracking.
-- **Tactical Overlays**: High-precision bounding boxes and corner brackets that follow targets.
-- **Neural Telemetry**: Real-time probability readouts and signal status monitoring.
+- **AI Face Mesh**: Integrated MediaPipe/TensorFlow.js face detection for real-time biometric tracking with high-precision confidence scores.
+- **Tactical Overlays**: Dynamic corner brackets and bounding boxes that track targets with millisecond latency.
+- **Neural Telemetry**: Real-time probability readouts, target acquisition status, and signal strength monitoring.
 
-### 🌐 P2P Multiplayer (Hacker Duel)
-- **WebRTC Streaming**: Direct peer-to-peer video streaming encoded in ASCII.
-- **Side-by-Side HUD**: View your feed and your peer's feed simultaneously in a split-screen terminal.
-- **Room Sharing**: Generate unique Room IDs or share direct links (`?room=XYZ`) for instant joining.
+### 🌐 Multi-Channel Communication (Hacker Duel)
+- **WebRTC P2P Streaming**: Direct peer-to-peer video streaming encoded in ASCII for a seamless "Duel" experience.
+- **P2P Voice Chat**: Real-time audio communication with dedicated microphone and speaker controls.
+- **Encrypted Text Messaging**: Integrated chat panel for terminal-style communication during active sessions.
+- **Room Management**: Instant room creation with copyable invitation links (`?room=ID`) for rapid deployment.
+
+### 📸 Tactical Tools
+- **Optic Captures**: High-resolution screenshot system that renders the current ASCII matrix directly to a PNG file.
+- **Optic Filters**: Adjustable gain and contrast controls to optimize signal clarity in low-light environments.
+- **Fullscreen Mode**: Complete immersion with F11/double-click fullscreen support.
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **Framework**: [React 19](https://react.dev/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **AI/ML**: [MediaPipe / TensorFlow.js](https://google.github.io/mediapipe/)
-- **Networking**: [WebRTC](https://webrtc.org/) & [Socket.io-client](https://socket.io/)
+### Frontend Architecture
+- **Framework**: [React 19](https://react.dev/) (Functional Components, Hooks)
+- **Engine Logic**: Vanilla TypeScript Modules (`ASCIIEngine`, `AIEngine`, `MultiplayerModule`)
+- **AI/ML Core**: [MediaPipe Face Mesh](https://google.github.io/mediapipe/) & [TensorFlow.js](https://www.tensorflow.org/js)
+- **Styling**: Cyberpunk Design System (Custom CSS Variables, Glassmorphism, Micro-animations)
+- **Build System**: [Vite 8](https://vitejs.dev/)
 
-### Backend (Signaling)
-- **Runtime**: [Node.js](https://nodejs.org/)
-- **Server**: [Express](https://expressjs.com/)
-- **Signaling**: [Socket.io](https://socket.io/)
-
-### Design System
-- **Styling**: Vanilla CSS (Cyberpunk Design System)
-- **Typography**: Google Fonts (Orbitron, Rajdhani, Share Tech Mono)
+### Networking & Signaling
+- **Signaling Server**: Node.js + Express
+- **Real-Time Link**: [Socket.io 4](https://socket.io/)
+- **P2P Protocol**: WebRTC (RTCPeerConnection)
 
 ---
 
-## ⚙️ Installation & Setup
+## ⚙️ Installation & Deployment
 
-### 1. Clone the Repository
+### 1. Repository Setup
 ```bash
 git clone https://github.com/Manish1803/cyberascii.git
 cd cyberascii
 ```
 
-### 2. Install Dependencies
+### 2. Dependency Management
 ```bash
-# Install frontend dependencies
+# Install root (client) dependencies
 npm install
 
 # Install signaling server dependencies
@@ -64,42 +71,42 @@ npm install
 cd ..
 ```
 
-### 3. Run the Application
-You will need two terminal windows:
+### 3. System Execution
+You will need two active terminal sessions:
 
-**Terminal 1: Signaling Server**
+**Session A: Signaling Server**
 ```bash
 npm run server
 ```
 
-**Terminal 2: Frontend Client**
+**Session B: Development Client**
 ```bash
 npm run dev
 ```
 
 ---
 
-## 🎮 How to Use Multiplayer
-1. Open the app in two separate browser tabs or on two different machines.
-2. In **Tab 1**, click **CREATE** in the multiplayer dock to generate a Room ID.
-3. Click **COPY LINK** to share the direct URL with a peer.
-4. In **Tab 2**, either use the link or paste the Room ID and click **JOIN**.
-5. Both users will now see each other in a real-time ASCII "Duel" interface.
+## 🎮 Operational Guide: Hacker Duel
+1. **Initialize**: Launch the application and grant camera/microphone permissions.
+2. **Establish Link**: Click **CREATE** in the multiplayer dock to generate a unique Room ID.
+3. **Deploy Invitation**: Copy the generated link and share it with your peer.
+4. **Link Status**: Once the peer joins, the interface will automatically switch to **DUAL VIEW** mode.
+5. **Communicate**: Use the **CHAT** panel and **MIC/SPEAKER** toggles to coordinate with your peer.
 
 ---
 
-## 🔮 Future Improvements
-- [ ] **Global Lobby**: A public matchmaking area for random hacker encounters.
-- [ ] **Audio Visualization**: Map ASCII density to real-time audio frequencies.
-- [ ] **Clip Recording**: Export and save ASCII-encoded video clips as GIFs or MP4s.
-- [ ] **Vision Pro Integration**: Full support for Apple Vision Pro gesture-based optic controls.
+## 🔮 Roadmap
+- [ ] **Global Lobby**: Persistent matchmaking area for random signal interceptions.
+- [ ] **Neural Recording**: Direct-to-GIF recording for ASCII sequences.
+- [ ] **Audio Visualizer**: Map ASCII density to real-time audio frequencies for "Sonic Vision".
+- [ ] **Vision Pro Support**: Gesture-based optic controls for Apple Vision Pro.
 
 ---
 
 ## 📜 License
-Internal Project - All Rights Reserved.
+Internal Project - Copyright © 2026 CyberASCII Vision Pro Team.
 
 ---
 
 > [!TIP]
-> For the best aesthetic experience, use the app in Fullscreen mode (F11) on a high-refresh-rate monitor.
+> For maximum immersion, use a high-refresh-rate monitor and run the application in a dark environment to minimize glare and enhance the neon optics.

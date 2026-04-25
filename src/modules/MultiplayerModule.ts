@@ -12,6 +12,7 @@ export class MultiplayerModule {
   public onRemoteStream: ((stream: MediaStream) => void) | null = null;
   public onStatusChange: ((status: ConnectionStatus) => void) | null = null;
   public onError: ((error: string) => void) | null = null;
+  public onChatMessage: ((data: { senderId: string, message: string, timestamp: number }) => void) | null = null;
 
   constructor() {}
 
@@ -91,9 +92,42 @@ export class MultiplayerModule {
       this.onStatusChange?.('ERROR');
     });
 
-    // Add local tracks
+    this.socket.on('chat-message', (data) => {
+      this.onChatMessage?.(data);
+    });
+
+    // Add local tracks (Video AND Audio)
     this.localStream.getTracks().forEach(track => {
+      console.log('[SYS] ADDING_LOCAL_TRACK:', track.kind);
       this.peer?.addTrack(track, this.localStream!);
+    });
+  }
+
+  public sendMessage(roomId: string, message: string) {
+    if (!this.socket || !roomId) return;
+    this.socket.emit('chat-message', { roomId, message });
+    
+    // Echo locally for UI
+    this.onChatMessage?.({
+      senderId: 'ME',
+      message,
+      timestamp: Date.now()
+    });
+  }
+
+  public setAudioEnabled(enabled: boolean) {
+    if (!this.localStream) {
+      console.warn('[SYS] MIC_TOGGLE_FAILED: NO_LOCAL_STREAM');
+      return;
+    }
+    const audioTracks = this.localStream.getAudioTracks();
+    if (audioTracks.length === 0) {
+      console.warn('[SYS] MIC_TOGGLE_FAILED: NO_AUDIO_TRACKS_FOUND');
+      return;
+    }
+    audioTracks.forEach(track => {
+      track.enabled = enabled;
+      console.log(`[SYS] MIC_${enabled ? 'ACTIVE' : 'MUTED'} | TRACK_ID: ${track.id} | STATE: ${track.readyState}`);
     });
   }
 

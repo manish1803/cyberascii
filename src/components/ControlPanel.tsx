@@ -23,6 +23,11 @@ interface ControlPanelProps {
   onDisconnect: () => void;
   onToggleFullScreen: () => void;
   onCapture: () => void;
+  isMicEnabled: boolean;
+  onToggleMic: () => void;
+  isSpeakerEnabled: boolean;
+  onToggleSpeaker: () => void;
+  onToggleChat: () => void;
 }
 
 export const ControlPanel: React.FC<ControlPanelProps> = ({ 
@@ -33,7 +38,12 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   onMultiplayerAction,
   onDisconnect,
   onToggleFullScreen,
-  onCapture
+  onCapture,
+  isMicEnabled,
+  onToggleMic,
+  isSpeakerEnabled,
+  onToggleSpeaker,
+  onToggleChat
 }) => {
   const [inputRoomId, setInputRoomId] = useState(activeRoomId || '');
   const [copied, setCopied] = useState(false);
@@ -151,6 +161,31 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               SAVE PHOTO
             </button>
           </div>
+
+          {multiplayerStatus !== 'DISCONNECTED' && (
+            <div className="btn-row-multi">
+              <button 
+                className={`btn ${isMicEnabled ? 'btn-danger' : 'btn-ghost'}`}
+                onClick={onToggleMic}
+              >
+                {isMicEnabled ? 'MIC ACTIVE' : 'MIC OFF'}
+              </button>
+
+              <button 
+                className={`btn ${isSpeakerEnabled ? 'btn-danger' : 'btn-ghost'}`}
+                onClick={onToggleSpeaker}
+              >
+                {isSpeakerEnabled ? 'SPEAKER ON' : 'SPEAKER OFF'}
+              </button>
+
+              <button 
+                className="btn btn-ghost"
+                onClick={onToggleChat}
+              >
+                OPEN CHAT
+              </button>
+            </div>
+          )}
             
           {multiplayerStatus === 'DISCONNECTED' ? (
             <div className="multiplayer-controls">

@@ -45,6 +45,15 @@ io.on('connection', (socket) => {
     });
   });
 
+  socket.on('chat-message', ({ roomId, message }) => {
+    console.log(`[SYS] CHAT_MSG: ${socket.id} -> ROOM_${roomId}`);
+    socket.to(roomId).emit('chat-message', {
+      senderId: socket.id,
+      message,
+      timestamp: Date.now()
+    });
+  });
+
   socket.on('disconnect', () => {
     console.log(`[SYS] SIGNAL_LINK_LOST: ${socket.id}`);
   });

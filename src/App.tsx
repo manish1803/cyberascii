@@ -3,6 +3,8 @@ import { NeuralPanel } from './components/NeuralPanel';
 import { ASCIICameraView } from './components/ASCIICameraView';
 import { ControlPanel } from './components/ControlPanel';
 import { CyberLoader } from './components/CyberLoader';
+import { ChatPanel } from './components/ChatPanel';
+import type { ChatMessage } from './components/ChatPanel';
 import { AIEngine } from './modules/AIEngine';
 import { CameraModule } from './modules/CameraModule';
 import { MultiplayerModule } from './modules/MultiplayerModule';
@@ -31,6 +33,10 @@ function App() {
   const [multiplayerStatus, setMultiplayerStatus] = useState<ConnectionStatus>('DISCONNECTED');
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [roomId, setRoomId] = useState<string>('');
+  const [isMicEnabled, setIsMicEnabled] = useState(false);
+  const [isSpeakerEnabled, setIsSpeakerEnabled] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   // Shared instances
   const aiRef = useRef<AIEngine | null>(null);
@@ -91,6 +97,10 @@ function App() {
     // Setup Multiplayer listeners
     multiplayerRef.current!.onStatusChange = (status) => setMultiplayerStatus(status);
     multiplayerRef.current!.onRemoteStream = (stream) => setRemoteStream(stream);
+    multiplayerRef.current!.onChatMessage = (msg) => {
+      setChatMessages((prev) => [...prev, msg]);
+      if (!isChatOpen) setIsChatOpen(true); // Auto-open on message
+    };
 
     return () => { isMounted = false; };
   }, []);
@@ -101,10 +111,38 @@ function App() {
 
   const handleMultiplayerAction = useCallback(async (action: 'CREATE' | 'JOIN', id: string) => {
     if (!videoElement?.srcObject) return;
-    const stream = videoElement.srcObject as MediaStream;
+    
+    // Ensure we have an audio track before joining room
+    let stream = videoElement.srcObject as MediaStream;
+    if (stream.getAudioTracks().length === 0) {
+      console.log('[SYS] REFRESHING_STREAM_FOR_AUDIO_LINK');
+      cameraRef.current?.stop();
+      const newVideo = await cameraRef.current!.initialize(640, 480, true);
+      setVideoElement(newVideo);
+      stream = newVideo.srcObject as MediaStream;
+      
+      // Start muted by default
+      stream.getAudioTracks().forEach(t => t.enabled = false);
+      setIsMicEnabled(false);
+    }
+
     await multiplayerRef.current!.initialize(stream, id, action === 'CREATE');
     setRoomId(id);
   }, [videoElement]);
+
+  const handleSendMessage = useCallback((text: string) => {
+    multiplayerRef.current?.sendMessage(roomId, text);
+  }, [roomId]);
+
+  const toggleMic = useCallback(() => {
+    const newState = !isMicEnabled;
+    setIsMicEnabled(newState);
+    multiplayerRef.current?.setAudioEnabled(newState);
+  }, [isMicEnabled]);
+
+  const toggleSpeaker = useCallback(() => {
+    setIsSpeakerEnabled(!isSpeakerEnabled);
+  }, [isSpeakerEnabled]);
 
   const handleDisconnect = useCallback(() => {
     multiplayerRef.current!.disconnect();
@@ -170,6 +208,7 @@ function App() {
           videoElement={videoElement}
           aiEngine={aiRef.current!}
           remoteStream={remoteStream}
+          isSpeakerEnabled={isSpeakerEnabled}
         />
       </main>
 
@@ -182,6 +221,18 @@ function App() {
         onDisconnect={handleDisconnect}
         onToggleFullScreen={toggleFullScreen}
         onCapture={handleCapture}
+        isMicEnabled={isMicEnabled}
+        onToggleMic={toggleMic}
+        isSpeakerEnabled={isSpeakerEnabled}
+        onToggleSpeaker={toggleSpeaker}
+        onToggleChat={() => setIsChatOpen(!isChatOpen)}
+      />
+
+      <ChatPanel 
+        isOpen={isChatOpen}
+        messages={chatMessages}
+        onSendMessage={handleSendMessage}
+        onClose={() => setIsChatOpen(false)}
       />
 
       <style>{`
