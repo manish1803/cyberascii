@@ -7,7 +7,7 @@ export class MultiplayerModule {
   private socket: Socket | null = null;
   private peer: RTCPeerConnection | null = null;
   private localStream: MediaStream | null = null;
-  private serverUrl: string = 'http://localhost:3001';
+  private serverUrl: string = import.meta.env.VITE_SIGNALING_SERVER_URL || 'http://localhost:3001';
 
   public onRemoteStream: ((stream: MediaStream) => void) | null = null;
   public onStatusChange: ((status: ConnectionStatus) => void) | null = null;
